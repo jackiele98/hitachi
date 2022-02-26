@@ -9,6 +9,10 @@ const Index = () => {
     const maxTrackingNumsPerFedexReq = 30;
     const maxTrackingNumsPerDHLReq = 3;
 
+    const convertDateToString = date => {
+        return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+    }
+
     const callAPI = async (apiCall, reqBody) => {
         const res = await fetch(apiCall, {
             method: 'POST',
@@ -19,7 +23,9 @@ const Index = () => {
         let downloadData = "";
         if (resJson.success) {
             resJson.result.forEach(e => {
-                downloadData += `${e.shippingDate},${e.deliveryDate},${e.trackingNumber},${e.status}\n`;
+                const shippingDate = new Date(e.shippingDate);
+                const deliveryDate = new Date(e.deliveryDate);
+                downloadData += `${convertDateToString(shippingDate)},${convertDateToString(deliveryDate)},${e.trackingNumber},${e.status}\n`;
             });
         }
         return downloadData;
@@ -69,7 +75,7 @@ const Index = () => {
         const data = `data:,${encodeURIComponent(downloadData)}`;
         const filename = `ShippingData.csv`;
         const aTag = document.createElement('a');
-      
+
         aTag.href = data;
         aTag.download = filename;
         aTag.click();
